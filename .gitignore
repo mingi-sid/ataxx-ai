@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+data/*.txt
+*.pt
+*.tar
+*.pkl
+
+ai_neive.py
+ai_short_mcts.py
+*.txt
