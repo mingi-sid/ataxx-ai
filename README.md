@@ -31,27 +31,37 @@ Input은 3개의 layer로 구성된 `3x7x7` Tensor입니다.
 
 turn 수를 표시하는 레이어는, 512턴이 지나면 강제로 게임이 끝나기 때문에 필요했습니다.
 
-다만, 모델을 만든 에 현재 turn 수를 받아올 수 없다는 것을 확인해서, Self-play를 통해 학습할 때는 값을 0.5로 고정했습니다.
+다만, 모델을 만든 뒤에 현재 turn 수를 받아올 수 없다는 것을 확인해서, Self-play를 통해 학습할 때는 값을 0.5로 고정했습니다.
 
 ### Model Configuration
 
-모델은 Alpha Zero(https://arxiv.org/abs/1712.01815)의 모델을 기반으로 하고, ResNet, GoogLeNet (Inception Net)의 구성에서 아이디어를 얻었습니다.
+모델은 AlphaZero(https://arxiv.org/abs/1712.01815)의 모델을 기반으로 하고, ResNet, GoogLeNet (Inception Net)의 구성에서 아이디어를 얻었습니다.
+
+![Entire Network](./images/SidusAtaxxNet.png)
 
 ### A convolutional layer
 
 Ataxx의 이동 규칙은 한 번에 1칸 이동하는 것과, 한 번에 2칸 이동하는 것으로 나뉩니다. 거기에 더해 전체 맵의 상황을 따로따로 네트워크에 전달하기 위해, kernel size가 3, 5, 7인 세 개의 2D convolutional layer의 결과를 concatenate 하였습니다. 2D batch normalization과 ReLU를 함께 적용하였습니다.
 
+![Convolutional Layer](./images/ConvBlock.png)
+
 ### Residual Block
 
 kernel size가 3, 5인 두 개의 2D convolutional layer를 이용하고, 마지막에 처음의 input을 더해주는 residual connection을 통해 vanishing/exploding gradient problem을 해결하고자 하였습니다.
+
+![Residual Block](./images/ResBlock.png)
 
 ### Value Head
 
 Residual layers의 결과를 kernel size가 1인 2D convolutional layer에 통과시킨 뒤, 2개의 fully-connected layer를 통해 결과를 얻었습니다. `tanh`를 activation function으로 사용해서 -1부터 1 사이의 value 값을 얻었습니다.
 
+![Value Head](./images/ValueHead.png)
+
 ### Policy Head
 
 Residual layers의 결과를 kernel size가 1인 2D convolutional layer에 통과시킨 뒤, 1개의 fully-connected layer를 통해 결과를 얻었습니다. `log_softmax`를 activation function으로 사용해서 `17x7x7=833`개의 확률 분포(의 로그값)을 얻었습니다.
+
+![Policy Head](./images/PolicyHead.png)
 
 #### Policy Configuration Detail
 
