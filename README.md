@@ -135,3 +135,7 @@ Modify code to match https://ataxx.org UAI specification
 Calculate Elo rating
 
 Share final version
+
+## Contact
+
+질문이나 요청사항은 issue나 메일(mingi.shin@kaist.ac.kr), 트위터 계정([@yuagnun](https://twitter.com/yuagnun))으로 편하게 보내주세요.
