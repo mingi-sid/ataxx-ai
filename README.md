@@ -8,9 +8,10 @@ Alpha Zero의 알고리즘을 모방하여 제작한 Ataxx AI입니다.
 
 모델과 코드는 두 가지 버전이 있습니다.
 
-- `SidusAtaxxAI_ScienceWar_ver.zip`: 2020 사이버 이공계 학생교류전에 출전한 버전
+- [`SidusAtaxxAI_ScienceWar_ver.zip`](./save/SidusAtaxxAI_ScienceWar_ver.zip): 2020 사이버 이공계 학생교류전에 출전한 버전
   - 모델 오류로 value head가 제대로 학습되지 않았습니다.
-- `SidusAtaxxAI_20200919_ver.zip`: 모델 오류 수정, 각종 문제점 개선
+  - 출전 영상: https://youtu.be/czqSe_SJlb4?t=840 (Defeated, 14:00-19:20)
+- [`SidusAtaxxAI_20200919_ver.zip`](./save/SidusAtaxxAI_ScienceWar_ver.zip): 모델 오류 수정, 각종 문제점 개선
 - `SidusAtaxxAI_Final_ver.zip`: (TODO: 학습 중)
 
 윈도우 버전 Python3와 Pytorch(1.6.0)를 설치한 뒤, `ai2.py` 파일을 `ai1.py` 또는 `ai2.py`로 이름을 바꿔서, 게임 개발팀에서 제공해 준 `ataxx.exe`를 실행시키면 됩니다.
@@ -142,3 +143,9 @@ Train&evaluate 중에는 정해진 depth만큼 탐색하였고, 실전에서는 
 Modify code to match https://ataxx.org UAI specification
 
 Calculate Elo rating
+
+Share final version
+
+## Contact
+
+질문이나 요청사항은 issue나 메일(mingi.shin@kaist.ac.kr), 트위터 계정([@yuagnun](https://twitter.com/yuagnun))으로 편하게 보내주세요.
