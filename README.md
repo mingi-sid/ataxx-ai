@@ -12,7 +12,7 @@ Alpha Zero의 알고리즘을 모방하여 제작한 Ataxx AI입니다.
   - 모델 오류로 value head가 제대로 학습되지 않았습니다.
   - 출전 영상: https://youtu.be/czqSe_SJlb4?t=840 (Defeated, 14:00-19:20)
 - [`SidusAtaxxAI_20200919_ver.zip`](./save/SidusAtaxxAI_ScienceWar_ver.zip): 모델 오류 수정, 각종 문제점 개선
-- `SidusAtaxxAI_Final_ver.zip`: (TODO: 학습 중)
+- [`SidusAtaxxAI_Final_ver.zip`](./save/SidusAtaxxAI_Final_ver.zip): 알고리즘 오류 수정
 
 윈도우 버전 Python3와 Pytorch(1.6.0)를 설치한 뒤, `ai2.py` 파일을 `ai1.py` 또는 `ai2.py`로 이름을 바꿔서, 게임 개발팀에서 제공해 준 `ataxx.exe`를 실행시키면 됩니다.
 
@@ -67,9 +67,9 @@ Residual layers의 결과를 kernel size가 1인 2D convolutional layer에 통�
 #### Policy Configuration Detail
 
 Pass를 제외한 모든 가능한 move를 `17x7x7=833`가지의 값으로 표현하였습니다. (Ataxx 규칙 상 pass 여부는 플레이어가 선택할 수 없기 때문에 따로 pass에 대한 policy가 필요하지 않았습니다.)
-$$
-\mathbf{p} = \left(p_{i}\right), \text{where }i=7^2d+7x+y
-$$
+
+<img src="https://render.githubusercontent.com/render/math?math=\mathbf{p} = \left(p_{i}\right), \text{where%20}i=7^2d%2B7x%2By">
+
 `x`, `y`는 Player의 말이 움직인 좌표입니다.
 
 `d`는 움직이기 전 말의 위치에 따라 다음과 같이 0~16의 값을 가집니다. (`*`가 `(x, y)`에 해당하는 위치) 한 칸 움직였을 경우는 말의 출처를 따질 필요가 없기 때문에, `d`값은 모두 0으로 동일하게 놓았습니다.
@@ -84,7 +84,7 @@ y increasing
 7  8  9  10 11 => x increasing
 ```
 
-즉, `(3, 4)`에 있던 말이 `x` 방향으로 2, `y` 방향으로 -1 이동한다면, `d=12`이고 좌표는 `(x, y)=(5, 3)`이 되므로 이 move에 해당하는 값은 $$p_{7^2\times12+7\times5+3} = p_{626}$$이 됩니다.
+즉, `(3, 4)`에 있던 말이 `x` 방향으로 2, `y` 방향으로 -1 이동한다면, `d=12`이고 좌표는 `(x, y)=(5, 3)`이 되므로 이 move에 해당하는 값은 <img src="https://render.githubusercontent.com/render/math?math=p_{7^2\times12%2B7\times5%2B3} = p_{626}">이 됩니다.
 
 ## Train
 
@@ -95,6 +95,7 @@ ataxx.org에서 받아온 PGN 기보 데이터를 통한 training과, self-play�
 - `SidusAtaxxAI_ScienceWar_ver.zip`: Existing dataset ~24h training, Self-play ~4h training
   - 모델 오류로 value head가 학습되지 않았습니다.
 - `SidusAtaxxAI_20200919_ver.zip`: Existing dataset ~24h training (only policy is trained), Self-play ~72h training
+- `SidusAtaxxAI_Final_ver.zip`: Existing dataset ~24h training (only policy is trained), Self-play ~96h training
 
 ### Existing Dataset
 

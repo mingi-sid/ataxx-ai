@@ -101,7 +101,7 @@ class SidusPlayer():
         if use_gpu:
             self.net.load_state_dict(torch.load(filepath))
         else:
-            self.net.load_state_dict(torch.load(filepath, map_location='cpu'))                                                            
+            self.net.load_state_dict(torch.load(filepath, map_location='cpu'))
         self.gpu = use_gpu
         if self.gpu:
             self.net.cuda()
@@ -140,6 +140,7 @@ class SidusPlayer():
                     print_board(current_state[0])
                 N_sum = 0
                 if not current_state in self.move_dict:
+                    # Add current state and possible moves to tree
                     self.move_dict[current_state] = {}
                     possible_moves = reversed(get_possible_moves(current_state[0], current_player))
                     if test:
@@ -170,7 +171,7 @@ class SidusPlayer():
                             v = 1
                         else:
                             v = -1
-                        for history_state, history_move in history:
+                        for history_state, history_move in reversed(history):
                             v = -v
                             self.move_dict[history_state][history_move]['N'] += 1
                             self.move_dict[history_state][history_move]['W'] += v
@@ -214,7 +215,7 @@ class SidusPlayer():
                     self.state_dict[current_state] = {'prob': prob, 'value': value}
                     it_was_new = True
                 # Update parents
-                for history_state, history_move in history:
+                for history_state, history_move in reversed(history):
                     value = -value
                     self.move_dict[history_state][history_move]['N'] += 1
                     self.move_dict[history_state][history_move]['W'] += value

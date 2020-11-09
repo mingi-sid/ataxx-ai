@@ -23,17 +23,18 @@ class GameDataset(Dataset):
             with open(filepath, 'rb') as f:
                 record_from_file = pickle.load(f)
                 file_length = len(record_from_file['input'])
-                use_num = min(file_length, 100000)
+                use_num = min(file_length, 30000)
                 sample_key = random.sample(range(file_length), use_num)
-                record_cut = {'input': [], 'value': [], 'policy': []}
+                record_sampled = {'input': [], 'value': [], 'policy': []}
                 for key in sample_key:
-                    record_cut['input'].append(record_from_file['input'][key])
-                    record_cut['policy'].append(record_from_file['policy'][key])
-                    record_cut['value'].append(record_from_file['value'][key])
-                record_from_file = record_cut
-                self.record['input'] += record_from_file['input']
-                self.record['policy'] += record_from_file['policy']
-                self.record['value'] += record_from_file['value']
+                    record_sampled['input'].append(record_from_file['input'][key])
+                    record_sampled['policy'].append(record_from_file['policy'][key])
+                    record_sampled['value'].append(record_from_file['value'][key])
+                self.record['input'] += record_sampled['input']
+                self.record['policy'] += record_sampled['policy']
+                self.record['value'] += record_sampled['value']
+                assert(len(self.record['input']) == len(self.record['policy']))
+                assert(len(self.record['input']) == len(self.record['value']))
                 with open('game_record.pkl', 'wb') as f2:
                     pickle.dump(self.record, f2)
         except:
@@ -52,7 +53,7 @@ class GameDataset(Dataset):
                 'policy': self.record['policy'][idx]}
 
 initial_state = [[1,0,0,0,0,0,2],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[2,0,0,0,0,0,1]]
-def self_play(match_num=100, max_visit=20, c_exploration=1.0, minimax=False):
+def self_play(match_num=100, max_visit=100, c_exploration=1.0, minimax=False):
     game_record = {'input': [],
                 'policy': [],
                 'value': []}
@@ -60,10 +61,17 @@ def self_play(match_num=100, max_visit=20, c_exploration=1.0, minimax=False):
     for i in range(match_num):
         AI1 = SidusPlayer(1, use_gpu=True)
         AI2 = SidusPlayer(2, use_gpu=True)
-        board = initial_state
+        if random.random() < 0.5:
+            board = initial_state
+        else:
+            start_pos = [(random.randrange(7), random.randrange(7), 1) for j in range(2)]
+            start_pos += [(random.randrange(7), random.randrange(7), 2) for j in range(2)]
+            board = [[0 for x in range(7)] for y in range(7)]
+            for x, y, p in start_pos:
+                board[x][y] = p
         turn = 0
         max_turn = 128
-        while turn < max_turn:
+        while True:
             move_1 = AI1.move(board, max_visit=max_visit, is_train=True, c_exploration=c_exploration)
             if move_1 != tuple():
                 policy = get_move_key(move_1[0][0], move_1[0][1], move_1[1][0], move_1[1][1])
@@ -147,7 +155,7 @@ def move_minimax(board, player, depth=4):
 def train(record, epoch_num=10):
     print('Training')
     datafeeder = GameDataset(record)
-    randomsampler = torch.utils.data.RandomSampler(datafeeder, replacement=True, num_samples=30000)
+    randomsampler = torch.utils.data.RandomSampler(datafeeder, replacement=True, num_samples=20000)
 
     net = SidusAtaxxNet()
     net.load_state_dict(torch.load('model.pt'))
@@ -214,26 +222,27 @@ def compete(match_num, target_num):
         board = initial_state
         while turn < max_turn:
             board_str_1 = [''.join([{0:'_',1:'O',2:'X'}[item] for item in row]) for row in board]
-            move_1 = AI_champ.move(board, max_visit=50)
+            move_1 = AI_champ.move(board, max_visit=500)
             board = update_board(board, move_1)
             if is_end(board) or turn >= max_turn:
+                if i == 0:
+                    for j in range(7):
+                        print(board_str_1[j])
+                    print()
                 if get_winner(board, 1, 2) == 2:
                     win_count += 1
                     print('W')
                 else:
                     print('_')
-                if i == 0:
-                    for j in range(7):
-                        print(board_str_1[j])
-                    print()
                 break
+                
             turn += 1
             board_str_2 = [''.join([{0:'_',1:'O',2:'X'}[item] for item in row]) for row in board]
             if i == 0:
                 for j in range(7):
                     print(board_str_1[j] + '\t' + board_str_2[j])
                 print()
-            move_2 = AI_chall.move(board, max_visit=50)
+            move_2 = AI_chall.move(board, max_visit=500)
             board = update_board(board, move_2)
             if is_end(board) or turn >= max_turn:
                 if get_winner(board, 1, 2) == 2:
@@ -261,7 +270,7 @@ def main():
         count += 1
         print('count', count)
         for i in range(2):
-            game_record = self_play(20, max_visit=100, c_exploration=2.0, minimax=False)
+            game_record = self_play(20, max_visit=100, c_exploration=1.0, minimax=False)
             # Train
             train(game_record, 20)
         new_champ = compete(7, 5)
